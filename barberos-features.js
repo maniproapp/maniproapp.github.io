@@ -1,7 +1,7 @@
 ﻿// v1781192785901
-// BarberOS V2 Features v3.0 - Comissao, Dashboard, Acesso Barbeiro
+// ManiPro V2 Features v3.0 - Comissao, Dashboard, Acesso Profissional
 (function(){
-// Funcao global chamada pelo onclick dos botoes Editar barbeiro
+// Funcao global chamada pelo onclick dos botoes Editar profissional
 window._doEditBarber = function(id){
   var d = window._barbersData && window._barbersData[id];
   if(d) {
@@ -64,7 +64,7 @@ async function enhanceBarbList(){
       var btn = document.createElement("button");
       btn.className = "btn-edit-barber";
       btn.innerHTML = "Editar";
-      btn.setAttribute("style","background:#C9A84C;color:#0E0E0E;border:none;border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-weight:700;-webkit-tap-highlight-color:rgba(201,168,76,0.3);touch-action:manipulation");
+      btn.setAttribute("style","background:#9B59B6;color:#0E0E0E;border:none;border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-weight:700;-webkit-tap-highlight-color:rgba(155,89,182,0.3);touch-action:manipulation");
       btn.setAttribute("onclick","window._doEditBarber('"+b.id+"')");
       var togDiv = item.querySelector(".tog");
       if(togDiv && togDiv.parentNode) togDiv.parentNode.insertBefore(btn, togDiv);
@@ -84,7 +84,7 @@ window.addBarber = function(){
   document.getElementById("brb-comm").value="0";
   document.getElementById("brb-comm-val").textContent="0";
   document.getElementById("brb-edit-id").value="";
-  document.getElementById("mod-barber-title").textContent="Adicionar Barbeiro";
+  document.getElementById("mod-barber-title").textContent="Adicionar Profissional";
   openMod("mod-barber");
 };
 
@@ -96,7 +96,7 @@ window.editBarber = function(id,name,spec,comm){
     document.getElementById("brb-comm").value=comm||0;
     document.getElementById("brb-comm-val").textContent=comm||0;
     document.getElementById("brb-edit-id").value=id;
-    document.getElementById("mod-barber-title").textContent="Editar Barbeiro";
+    document.getElementById("mod-barber-title").textContent="Editar Profissional";
     // Seção de senha simples
     var accSec=document.getElementById("brb-access-section");
     if(!accSec){
@@ -104,7 +104,7 @@ window.editBarber = function(id,name,spec,comm){
       if(md){
         accSec=document.createElement("div");
         accSec.id="brb-access-section";
-        accSec.innerHTML='<div style="border-top:1px solid rgba(154,144,128,.3);margin-top:12px;padding-top:12px"><div style="font-size:13px;font-weight:700;color:#C9A84C;margin-bottom:8px">Acesso do Barbeiro</div><div class="fg"><label class="fl">Nova senha (vazio = manter)</label><input class="fi" id="brb-access-pwd" type="text" placeholder="Min 6 caracteres"></div></div>';
+        accSec.innerHTML='<div style="border-top:1px solid rgba(154,144,128,.3);margin-top:12px;padding-top:12px"><div style="font-size:13px;font-weight:700;color:#9B59B6;margin-bottom:8px">Acesso do Profissional</div><div class="fg"><label class="fl">Nova senha (vazio = manter)</label><input class="fi" id="brb-access-pwd" type="text" placeholder="Min 6 caracteres"></div></div>';
         var sb=md.querySelector("button");
         if(sb)md.insertBefore(accSec,sb);else md.appendChild(accSec);
       }
@@ -133,7 +133,7 @@ window.filterDash = async function(period){
     var allAppts=rAll.data||[];
     // Filtrar encerrados para calculo de receita/comissao
     var doneAppts=allAppts.filter(function(a){return a.status==="done"||a.status==="finished";});
-    // Buscar barbeiros
+    // Buscar profissionals
     var r2=await db.from("barbers").select("id,name,commission_pct").eq("shop_id",S.shopId);
     var bm={};(r2.data||[]).forEach(function(b){bm[b.id]={name:b.name,pct:Number(b.commission_pct)||0};});
     var bmByName={};(r2.data||[]).forEach(function(b){bmByName[(b.name||"").toLowerCase()]={id:b.id,pct:Number(b.commission_pct)||0};});
@@ -181,11 +181,11 @@ window.filterDash = async function(period){
     if(stRm)stRm.textContent=fmt(liq);
 
     // === RENDERIZAR SECAO COMISSOES ===
-    var h="<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px'><div style='background:var(--dk3);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#9A9080'>Receita ("+lbl+")</div><div style='font-size:18px;font-weight:700;color:#C9A84C'>"+fmt(totalReceita)+"</div></div><div style='background:var(--dk3);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#9A9080'>Lucro ("+lbl+")</div><div style='font-size:18px;font-weight:700;color:#27AE60'>"+fmt(liq)+"</div></div></div>";
-    h+="<div style='font-weight:600;font-size:13px;margin-bottom:8px'>Comiss\u00f5es por Barbeiro:</div>";
+    var h="<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px'><div style='background:var(--dk3);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#9A9080'>Receita ("+lbl+")</div><div style='font-size:18px;font-weight:700;color:#9B59B6'>"+fmt(totalReceita)+"</div></div><div style='background:var(--dk3);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#9A9080'>Lucro ("+lbl+")</div><div style='font-size:18px;font-weight:700;color:#27AE60'>"+fmt(liq)+"</div></div></div>";
+    h+="<div style='font-weight:600;font-size:13px;margin-bottom:8px'>Comiss\u00f5es por Profissional:</div>";
     var ls=Object.values(cb).sort(function(a,b){return b.comm-a.comm;});
     if(!ls.length)h+="<div style='color:#9A9080;font-size:12px'>Nenhum atendimento encerrado no per\u00edodo.</div>";
-    else ls.forEach(function(b){h+="<div style='display:flex;justify-content:space-between;padding:8px;background:var(--dk3);border-radius:6px;margin-bottom:4px'><div><b>"+b.name+"</b> <span style='color:#9A9080;font-size:11px'>("+b.pct+"%) - "+b.count+" atend.</span></div><div style='text-align:right'><div style='font-weight:600;color:#C9A84C'>"+fmt(b.comm)+"</div><div style='font-size:10px;color:#9A9080'>de "+fmt(b.total)+"</div></div></div>";});
+    else ls.forEach(function(b){h+="<div style='display:flex;justify-content:space-between;padding:8px;background:var(--dk3);border-radius:6px;margin-bottom:4px'><div><b>"+b.name+"</b> <span style='color:#9A9080;font-size:11px'>("+b.pct+"%) - "+b.count+" atend.</span></div><div style='text-align:right'><div style='font-weight:600;color:#9B59B6'>"+fmt(b.comm)+"</div><div style='font-size:10px;color:#9A9080'>de "+fmt(b.total)+"</div></div></div>";});
     h+="<div style='margin-top:10px;padding-top:10px;border-top:1px solid var(--dk4);display:flex;justify-content:space-between;font-size:12px'><span>Total comiss\u00f5es:</span><span style='font-weight:700;color:#E74C3C'>-"+fmt(tc)+"</span></div>";
     document.getElementById("dash-profit-result").innerHTML=h;
   }catch(e){document.getElementById("dash-profit-result").innerHTML="Erro: "+e.message;}
@@ -205,7 +205,7 @@ async function overrideLoadDashForBarber(){
     var el=document.getElementById('td-lbl');
     if(el)el.textContent='Hoje '+new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
     try{
-      // Buscar apenas agendamentos DESTE barbeiro
+      // Buscar apenas agendamentos DESTE profissional
       var r1=await db.from('appointments').select('*').eq('appointment_date',td).eq('shop_id',S.shopId).eq('barber_id',myBid).neq('status','cancelled').order('appointment_time');
       var ta=r1.data||[];
       var monthStart=td.slice(0,7)+'-01';
@@ -229,7 +229,7 @@ async function overrideLoadDashForBarber(){
         if(l.textContent==='Hoje'||l.textContent==='Meus hoje')l.textContent='Meus hoje';
         if(l.textContent==='Este mes'||l.textContent==='Meus no mes')l.textContent='Meus no mes';
       });
-      // Renderizar lista de agendamentos (apenas os do barbeiro)
+      // Renderizar lista de agendamentos (apenas os do profissional)
       var dl=document.getElementById('dash-list');
       if(dl){
         if(ta.length>0){
@@ -251,19 +251,19 @@ async function overrideLoadDashForBarber(){
       var totalEnc=encData.reduce(function(s,a){return s+Number(a.service_price||0);},0);
       var myComm=totalEnc*(bPct/100);
       var comHtml='<div style="background:var(--dk2);border-radius:12px;padding:16px">'
-        +'<div style="font-weight:700;font-size:16px;color:#C9A84C;margin-bottom:14px">\u{1F4B0} Minhas Comiss\u00f5es - '+bName+'</div>'
+        +'<div style="font-weight:700;font-size:16px;color:#9B59B6;margin-bottom:14px">\u{1F4B0} Minhas Comiss\u00f5es - '+bName+'</div>'
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
-        +'<div style="background:var(--dk3);border-radius:8px;padding:14px;text-align:center"><div style="font-size:11px;color:#9A9080">Comiss\u00e3o ('+bPct+'%)</div><div style="font-size:20px;font-weight:700;color:#C9A84C">'+fmt(myComm)+'</div></div>'
+        +'<div style="background:var(--dk3);border-radius:8px;padding:14px;text-align:center"><div style="font-size:11px;color:#9A9080">Comiss\u00e3o ('+bPct+'%)</div><div style="font-size:20px;font-weight:700;color:#9B59B6">'+fmt(myComm)+'</div></div>'
         +'<div style="background:var(--dk3);border-radius:8px;padding:14px;text-align:center"><div style="font-size:11px;color:#9A9080">Atendimentos (m\u00eas)</div><div style="font-size:20px;font-weight:700;color:#27AE60">'+encData.length+'</div></div>'
         +'</div>';
       if(encData.length>0){
         comHtml+='<div style="font-size:12px;color:#9A9080;margin-bottom:8px">Servi\u00e7os encerrados:</div>';
-        encData.forEach(function(a){comHtml+='<div style="display:flex;justify-content:space-between;padding:6px;background:var(--dk3);border-radius:6px;margin-bottom:3px"><div style="font-size:12px"><b>'+a.service_name+'</b><br><span style="color:#9A9080;font-size:10px">'+new Date(a.appointment_date+"T12:00").toLocaleDateString("pt-BR")+'</span></div><div style="text-align:right"><div style="font-weight:600;color:#C9A84C;font-size:12px">'+fmt(Number(a.service_price||0)*(bPct/100))+'</div></div></div>';});
-        comHtml+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(154,144,128,.3);display:flex;justify-content:space-between;font-size:13px"><b>Total:</b><span style="font-weight:700;color:#C9A84C">'+fmt(myComm)+'</span></div>';
+        encData.forEach(function(a){comHtml+='<div style="display:flex;justify-content:space-between;padding:6px;background:var(--dk3);border-radius:6px;margin-bottom:3px"><div style="font-size:12px"><b>'+a.service_name+'</b><br><span style="color:#9A9080;font-size:10px">'+new Date(a.appointment_date+"T12:00").toLocaleDateString("pt-BR")+'</span></div><div style="text-align:right"><div style="font-weight:600;color:#9B59B6;font-size:12px">'+fmt(Number(a.service_price||0)*(bPct/100))+'</div></div></div>';});
+        comHtml+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(154,144,128,.3);display:flex;justify-content:space-between;font-size:13px"><b>Total:</b><span style="font-weight:700;color:#9B59B6">'+fmt(myComm)+'</span></div>';
       } else { comHtml+='<div style="color:#9A9080;font-size:12px;padding:10px;text-align:center">Nenhum encerrado este m\u00eas.</div>'; }
       // === FILTRO POR PERIODO ===
       comHtml+='<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(154,144,128,.2)">';
-      comHtml+='<div style="font-weight:700;font-size:14px;color:#C9A84C;margin-bottom:10px">\u{1F4CA} Consultar por Per\u00edodo</div>';
+      comHtml+='<div style="font-weight:700;font-size:14px;color:#9B59B6;margin-bottom:10px">\u{1F4CA} Consultar por Per\u00edodo</div>';
       comHtml+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">';
       comHtml+='<button class="fbtn" onclick="filterBarberDash(\'week\')">Semanal</button>';
       comHtml+='<button class="fbtn" onclick="filterBarberDash(\'biweek\')">Quinzenal</button>';
@@ -283,7 +283,7 @@ async function overrideLoadDashForBarber(){
 }
 
 
-// === FILTRO PERIODO DO BARBEIRO ===
+// === FILTRO PERIODO DO PROFISSIONAL ===
 window.filterBarberDash = async function(period){
   // Highlight active button
   var btns=document.querySelectorAll('#barber-dash-section .fbtn');
@@ -308,7 +308,7 @@ window.filterBarberDash = async function(period){
   resultEl.innerHTML='<div style="text-align:center;padding:10px"><div class="spin"></div></div>';
   try{
     var bid=S.barberUserId||S._barberBid;
-    if(!bid){resultEl.innerHTML='Erro: barbeiro n\u00e3o identificado.';return;}
+    if(!bid){resultEl.innerHTML='Erro: profissional n\u00e3o identificado.';return;}
     var r=await db.from('appointments').select('service_price,service_name,appointment_date,status')
       .eq('barber_id',bid).gte('appointment_date',from).lte('appointment_date',to)
       .eq('shop_id',S.shopId).in('status',['done','finished']);
@@ -319,7 +319,7 @@ window.filterBarberDash = async function(period){
     var comm=total*(pct/100);
     var count=appts.length;
     var h='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">'
-      +'<div style="background:var(--dk3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:#9A9080">Atendimentos</div><div style="font-size:18px;font-weight:700;color:#C9A84C">'+count+'</div></div>'
+      +'<div style="background:var(--dk3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:#9A9080">Atendimentos</div><div style="font-size:18px;font-weight:700;color:#9B59B6">'+count+'</div></div>'
       +'<div style="background:var(--dk3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:#9A9080">Faturado</div><div style="font-size:14px;font-weight:700;color:#fff">'+fmt(total)+'</div></div>'
       +'<div style="background:var(--dk3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:#9A9080">Comiss\u00e3o ('+pct+'%)</div><div style="font-size:18px;font-weight:700;color:#27AE60">'+fmt(comm)+'</div></div>'
       +'</div>';
@@ -329,7 +329,7 @@ window.filterBarberDash = async function(period){
       h+='<div style="font-size:11px;color:#9A9080;margin-bottom:4px">Detalhamento:</div>';
       Object.keys(svcMap).forEach(function(sn){
         var s=svcMap[sn];
-        h+='<div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--dk3);border-radius:6px;margin-bottom:3px;font-size:11px"><span>'+sn+' ('+s.count+'x)</span><span style="font-weight:600;color:#C9A84C">'+fmt(s.total*(pct/100))+'</span></div>';
+        h+='<div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--dk3);border-radius:6px;margin-bottom:3px;font-size:11px"><span>'+sn+' ('+s.count+'x)</span><span style="font-weight:600;color:#9B59B6">'+fmt(s.total*(pct/100))+'</span></div>';
       });
       h+='<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(154,144,128,.2);display:flex;justify-content:space-between;font-size:12px"><b>Total comiss\u00e3o:</b><span style="font-weight:700;color:#27AE60">'+fmt(comm)+'</span></div>';
     } else {
@@ -340,21 +340,21 @@ window.filterBarberDash = async function(period){
 };
 
 function injectUI(){
-  // Modal Barbeiro
+  // Modal Profissional
   if(!document.getElementById("mod-barber")){
     var d=document.createElement("div");d.className="mov";d.id="mod-barber";
-    d.innerHTML='<div class="msh"><div class="mhd"></div><div class="mt" id="mod-barber-title">Adicionar Barbeiro</div><div class="fg"><label class="fl">Nome *</label><input class="fi" id="brb-name" placeholder="Nome"></div><div class="fg"><label class="fl">Especialidade</label><input class="fi" id="brb-spec" placeholder="Especialidade"></div><div class="fg"><label class="fl">Comiss\u00e3o: <span id="brb-comm-val">0</span>%</label><input type="range" id="brb-comm" min="0" max="100" value="0" step="5" oninput="document.getElementById(\x27brb-comm-val\x27).textContent=this.value" style="width:100%;accent-color:#C9A84C"><div style="display:flex;justify-content:space-between;font-size:11px;color:#9A9080"><span>0%</span><span>50%</span><span>100%</span></div></div><input type="hidden" id="brb-edit-id" value=""><button class="btn" onclick="saveBarber()" style="width:100%;margin-top:12px">Salvar</button></div>';
+    d.innerHTML='<div class="msh"><div class="mhd"></div><div class="mt" id="mod-barber-title">Adicionar Profissional</div><div class="fg"><label class="fl">Nome *</label><input class="fi" id="brb-name" placeholder="Nome"></div><div class="fg"><label class="fl">Especialidade</label><input class="fi" id="brb-spec" placeholder="Especialidade"></div><div class="fg"><label class="fl">Comiss\u00e3o: <span id="brb-comm-val">0</span>%</label><input type="range" id="brb-comm" min="0" max="100" value="0" step="5" oninput="document.getElementById(\x27brb-comm-val\x27).textContent=this.value" style="width:100%;accent-color:#9B59B6"><div style="display:flex;justify-content:space-between;font-size:11px;color:#9A9080"><span>0%</span><span>50%</span><span>100%</span></div></div><input type="hidden" id="brb-edit-id" value=""><button class="btn" onclick="saveBarber()" style="width:100%;margin-top:12px">Salvar</button></div>';
     document.body.appendChild(d);
   }
   // Modal Criar Acesso
   if(!document.getElementById("mod-barber-user")){
     var d2=document.createElement("div");d2.className="mov";d2.id="mod-barber-user";
-    d2.innerHTML='<div class="msh"><div class="mhd"></div><div class="mt">Criar Acesso</div><div id="buser-barber-name" style="color:#C9A84C;font-weight:700;margin-bottom:12px"></div><div class="fg"><label class="fl">E-mail *</label><input class="fi" id="buser-email" type="email" placeholder="email@exemplo.com"></div><div class="fg"><label class="fl">Senha *</label><input class="fi" id="buser-pwd" type="text" placeholder="Min 6 caracteres"></div><input type="hidden" id="buser-barber-id" value=""><button class="btn" onclick="saveBarberUser()" style="width:100%;margin-top:8px">Criar acesso</button><div id="buser-count" style="font-size:11px;color:#9A9080;text-align:center;margin-top:8px"></div></div>';
+    d2.innerHTML='<div class="msh"><div class="mhd"></div><div class="mt">Criar Acesso</div><div id="buser-barber-name" style="color:#9B59B6;font-weight:700;margin-bottom:12px"></div><div class="fg"><label class="fl">E-mail *</label><input class="fi" id="buser-email" type="email" placeholder="email@exemplo.com"></div><div class="fg"><label class="fl">Senha *</label><input class="fi" id="buser-pwd" type="text" placeholder="Min 6 caracteres"></div><input type="hidden" id="buser-barber-id" value=""><button class="btn" onclick="saveBarberUser()" style="width:100%;margin-top:8px">Criar acesso</button><div id="buser-count" style="font-size:11px;color:#9A9080;text-align:center;margin-top:8px"></div></div>';
     document.body.appendChild(d2);
   }
   // Dashboard filters
   var dl=document.getElementById("dash-list");
-  // Esconder seção de lucros do proprietário se for barbeiro
+  // Esconder seção de lucros do proprietário se for profissional
   if(window.S&&S.role==='barber'){
     var profitSec=document.getElementById('dash-profit-section');
     if(profitSec)profitSec.style.display='none';
@@ -363,13 +363,13 @@ function injectUI(){
   }
   if(dl&&!document.getElementById("dash-profit-section")&&S.role!=='barber'){
     var sec=document.createElement("div");sec.id="dash-profit-section";sec.style.padding="0 20px 16px";
-    sec.innerHTML='<div style="background:var(--dk2);border-radius:12px;padding:16px"><div style="font-weight:700;font-size:15px;color:#C9A84C;margin-bottom:12px">Lucros e Comiss\u00f5es</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"><button class="fbtn" onclick="filterDash(\x27week\x27)" id="fd-week">Semanal</button><button class="fbtn" onclick="filterDash(\x27biweek\x27)" id="fd-biweek">Quinzenal</button><button class="fbtn" onclick="filterDash(\x27month\x27)" id="fd-month">Mensal</button><button class="fbtn" onclick="filterDash(\x27year\x27)" id="fd-year">Anual</button><button class="fbtn" onclick="filterDash(\x27custom\x27)" id="fd-custom">Periodo</button></div><div id="dash-period-custom" style="display:none;margin-bottom:12px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="fg"><label class="fl">De</label><input type="date" class="fi" id="dash-from"></div><div class="fg"><label class="fl">At\u00e9</label><input type="date" class="fi" id="dash-to"></div></div><button class="btn btn-out" onclick="filterDash(\x27custom\x27)" style="margin-top:8px;font-size:12px;padding:8px">Consultar</button></div><div id="dash-profit-result" style="font-size:13px;color:#9A9080">Selecione um per\u00edodo.</div></div>';
+    sec.innerHTML='<div style="background:var(--dk2);border-radius:12px;padding:16px"><div style="font-weight:700;font-size:15px;color:#9B59B6;margin-bottom:12px">Lucros e Comiss\u00f5es</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"><button class="fbtn" onclick="filterDash(\x27week\x27)" id="fd-week">Semanal</button><button class="fbtn" onclick="filterDash(\x27biweek\x27)" id="fd-biweek">Quinzenal</button><button class="fbtn" onclick="filterDash(\x27month\x27)" id="fd-month">Mensal</button><button class="fbtn" onclick="filterDash(\x27year\x27)" id="fd-year">Anual</button><button class="fbtn" onclick="filterDash(\x27custom\x27)" id="fd-custom">Periodo</button></div><div id="dash-period-custom" style="display:none;margin-bottom:12px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="fg"><label class="fl">De</label><input type="date" class="fi" id="dash-from"></div><div class="fg"><label class="fl">At\u00e9</label><input type="date" class="fi" id="dash-to"></div></div><button class="btn btn-out" onclick="filterDash(\x27custom\x27)" style="margin-top:8px;font-size:12px;padding:8px">Consultar</button></div><div id="dash-profit-result" style="font-size:13px;color:#9A9080">Selecione um per\u00edodo.</div></div>';
     dl.parentNode.insertBefore(sec,dl);
   }
   // CSS
   if(!document.getElementById("feat-css")){
     var st=document.createElement("style");st.id="feat-css";
-    st.textContent=".fbtn{background:var(--dk3);border:1px solid var(--dk4);color:var(--txm);border-radius:50px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}.fbtn.active,.fbtn:hover{background:#C9A84C;color:#0E0E0E;border-color:#C9A84C}";
+    st.textContent=".fbtn{background:var(--dk3);border:1px solid var(--dk4);color:var(--txm);border-radius:50px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}.fbtn.active,.fbtn:hover{background:#9B59B6;color:#0E0E0E;border-color:#9B59B6}";
     document.head.appendChild(st);
   }
 }
@@ -391,7 +391,7 @@ async function checkBarberRole(){
         var oc=n.getAttribute("onclick")||"";
         if(oc.includes("'cfg'")||oc.includes("'svcs'")||oc.includes("'barbs'")||oc.includes("'clientes'"))n.style.display="none";
       });
-      // Block onboarding - barbeiros nao podem criar barbearia
+      // Block onboarding - profissionals nao podem criar salão
       var origEnterApp = window.enterApp;
       if(typeof origEnterApp === "function"){
         window.enterApp = function(mode){
@@ -399,12 +399,12 @@ async function checkBarberRole(){
           origEnterApp(mode);
         };
       }
-      // Hide "Encerrar" button via observer - barbeiro pode Confirmar, Cancelar, Feito, mas NAO Encerrar
+      // Hide "Encerrar" button via observer - profissional pode Confirmar, Cancelar, Feito, mas NAO Encerrar
       var obs=new MutationObserver(function(){
         document.querySelectorAll("button,a,[onclick]").forEach(function(el){
           var txt=(el.textContent||"").toLowerCase();
           var oc=(el.getAttribute("onclick")||"").toLowerCase();
-          // Ocultar botoes de "encerrar" / "finished" / "encerrado" para barbeiros
+          // Ocultar botoes de "encerrar" / "finished" / "encerrado" para profissionals
           if(txt.includes("encerrar")||txt.includes("finalizar")||oc.includes("finished")||oc.includes("encerr")){
             el.style.display="none";
           }
@@ -420,7 +420,7 @@ async function checkBarberRole(){
 function init(){
   injectUI();
   startObserving();
-  // Override loadDash para barbeiro - filtrar apenas seus agendamentos
+  // Override loadDash para profissional - filtrar apenas seus agendamentos
   // Override será aplicado via interval abaixo
   // Re-render barber list after a delay
   setTimeout(function(){
@@ -476,11 +476,11 @@ window.loadBarberDash = async function(){ return; // Desativado - overrideLoadDa
   if(!buR||!buR.data) return;
   var myBarberId = buR.data.barber_id;
   myBarberId = myBarberId; // Atualizar
-  // Buscar comissão do barbeiro
+  // Buscar comissão do profissional
   var br = await db.from('barbers').select('name,commission_pct').eq('id',myBarberId).maybeSingle();
   var pct = (br&&br.data) ? Number(br.data.commission_pct)||0 : 0;
   var bName = (br&&br.data) ? br.data.name : '';
-  // Buscar agendamentos encerrados deste barbeiro
+  // Buscar agendamentos encerrados deste profissional
   var now = new Date();
   var monthStart = new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
   var today = now.toISOString().split('T')[0];
@@ -490,7 +490,7 @@ window.loadBarberDash = async function(){ return; // Desativado - overrideLoadDa
   var minhaComissao = totalServicos * (pct/100);
   // Contar atendimentos
   var totalAtend = appts.length;
-  // Criar HTML do dashboard do barbeiro
+  // Criar HTML do dashboard do profissional
   var sec = document.getElementById('barber-dash-section');
   if(!sec){
     sec = document.createElement('div');
@@ -522,7 +522,7 @@ window.loadBarberDash = async function(){ return; // Desativado - overrideLoadDa
 };
 
 // Auto-load barber dash when barber enters
-// Esconder lucros do proprietario quando barbeiro
+// Esconder lucros do proprietario quando profissional
 var _hideOwnerDash = setInterval(function(){
   if(window.S&&window.S.role==='barber'){
     var ps=document.getElementById('dash-profit-section');
@@ -538,14 +538,14 @@ var _barberDashInterval = setInterval(function(){ return; // Desativado
 },1000);
 
 
-// === Override loadDash para barbeiro ===
+// === Override loadDash para profissional ===
 var _origLoadDash = null;
 var _dashOverrideInterval = setInterval(function(){
   if(typeof window.loadDash === 'undefined' && typeof loadDash === 'undefined') return;
   if(S.role !== 'barber') { clearInterval(_dashOverrideInterval); return; }
   clearInterval(_dashOverrideInterval);
   
-  // Override: substituir os valores dos cards para mostrar apenas dados do barbeiro
+  // Override: substituir os valores dos cards para mostrar apenas dados do profissional
   var _cardUpdateCount=0;var _cardInterval=setInterval(async function updateBarberCards(){return; // Desativado_cardUpdateCount++;if(_cardUpdateCount>5)clearInterval(_cardInterval);
     if(!S.shopId) return;
     var _sess2=await db.auth.getSession();if(!_sess2||!_sess2.data||!_sess2.data.session)return;var _uid2=_sess2.data.session.user.id;var _buR2=await db.from("barber_users").select("barber_id").eq("user_id",_uid2).maybeSingle();if(!_buR2||!_buR2.data)return;var _myBid=_buR2.data.barber_id;_myBid=_myBid;
@@ -554,13 +554,13 @@ var _dashOverrideInterval = setInterval(function(){
     var pctR = await db.from('barbers').select('commission_pct').eq('id', _myBid).maybeSingle();
     var pct = (pctR && pctR.data) ? Number(pctR.data.commission_pct) || 0 : 0;
     
-    // Hoje - apenas agendamentos deste barbeiro
+    // Hoje - apenas agendamentos deste profissional
     var todayR = await db.from('appointments').select('service_price,status').eq('appointment_date', td).eq('shop_id', S.shopId).eq('barber_id', _myBid).neq('status','cancelled');
     var todayData = todayR.data || [];
     var todayCount = todayData.length;
     var todayRevenue = todayData.filter(function(a){return a.status==='finished';}).reduce(function(s,a){return s+Number(a.service_price||0)*(pct/100);},0);
     
-    // Mes - apenas agendamentos deste barbeiro
+    // Mes - apenas agendamentos deste profissional
     var monthR = await db.from('appointments').select('service_price,status').gte('appointment_date', monthStart).eq('shop_id', S.shopId).eq('barber_id', _myBid).neq('status','cancelled');
     var monthData = monthR.data || [];
     var monthCount = monthData.length;
@@ -588,7 +588,7 @@ var _dashOverrideInterval = setInterval(function(){
 }, 1500);
 
 
-// === WATCHER: verifica se user atual e realmente barbeiro ===
+// === WATCHER: verifica se user atual e realmente profissional ===
 var _roleWatcher = setInterval(async function(){
   if(!window.S || !window.db || !S.shopId) return;
   if(window._barberOverrideApplied) { clearInterval(_roleWatcher); return; }
@@ -604,7 +604,7 @@ var _roleWatcher = setInterval(async function(){
       clearInterval(_roleWatcher);
       return;
     }
-    // Verificar se é barbeiro
+    // Verificar se é profissional
     var barberCheck=await db.from('barber_users').select('barber_id').eq('user_id',uid).maybeSingle();
     if(barberCheck&&barberCheck.data){
       S.role='barber';
