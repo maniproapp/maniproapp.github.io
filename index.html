@@ -919,6 +919,34 @@ function showA(sec){
   if(_ac){_ac.scrollTop=0;setTimeout(function(){_ac.scrollTop=0;},10);setTimeout(function(){_ac.scrollTop=0;},100);}
 }
 
+
+// === AUTO-LOGIN: check existing session on page load ===
+(async function(){
+  try{
+    const{data:{session}}=await db.auth.getSession();
+    if(session&&session.user){
+      const uid=session.user.id;
+      const hasShop=await loadShop(uid,true);
+      if(hasShop){
+        S.role='owner';
+        enterApp('admin');
+        if(typeof updateLoggedName==='function')updateLoggedName(session.user.email);
+      } else {
+        var _bur=await db.from('barber_users').select('*').eq('user_id',uid);
+        var _bud=(_bur.data&&_bur.data.length>0)?_bur.data[0]:null;
+        if(_bud&&_bud.shop_id){
+          var _shr=await db.from('shops').select('*').eq('id',_bud.shop_id).maybeSingle();
+          if(_shr&&_shr.data){
+            S.shop=_shr.data;S.shopId=_shr.data.id;S.shopSlug=_shr.data.slug;
+            S.role='barber';S.barberUserId=_bud.barber_id;
+            applyShop(_shr.data);enterApp('admin');
+          }
+        }
+      }
+    }
+  }catch(e){console.warn('Auto-login error:',e);}
+})();
+
 // =================== AUTH ===================
 async function doLogin(){
   const email=document.getElementById('lemail').value.trim();
