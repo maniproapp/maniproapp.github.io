@@ -510,9 +510,9 @@ html,body{overscroll-behavior-y:none;}
       </div>
       <div class="sg">
         <div class="sc"><div class="sl">Hoje</div><div class="sv" id="st-today">-</div></div>
-        <div class="sc"><div class="sl">Receita hoje</div><div class="sv" id="st-rtd">-</div></div>
-        <div class="sc"><div class="sl">Este mes</div><div class="sv" id="st-month">-</div></div>
-        <div class="sc"><div class="sl">Receita mes</div><div class="sv" id="st-rm">-</div></div>
+        <div class="sc"><div class="sl">Receita (encerrados)</div><div class="sv" id="st-rtd">-</div></div>
+        <div class="sc"><div class="sl">Encerrados</div><div class="sv" id="st-month">-</div></div>
+        <div class="sc"><div class="sl">Lucro líquido</div><div class="sv" id="st-rm">-</div></div>
       </div>
       <div style="padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between">
         <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700">Próximos Agendamentos</div>
@@ -1526,10 +1526,16 @@ async function loadDash(){
     const tr=(ta||[]).filter(a=>a.status==='done'||a.status==='finished').reduce((s,a)=>s+Number(a.service_price),0);
     const mc=(ma||[]).length;
     const mr=(ma||[]).filter(a=>a.status==='done'||a.status==='finished').reduce((s,a)=>s+Number(a.service_price),0);
+    // Calculate commissions to show lucro liquido
+    const{data:_brbs}=await db.from('barbers').select('id,commission_pct').eq('shop_id',S.shopId);
+    const _bmap={};(_brbs||[]).forEach(b=>{_bmap[b.id]=Number(b.commission_pct)||0;});
+    const{data:_ma2}=await db.from('appointments').select('service_price,barber_id,status').gte('appointment_date',td.slice(0,7)+'-01').eq('shop_id',S.shopId).in('status',['done','finished']);
+    let _totalComm=0;(_ma2||[]).forEach(a=>{const pct=_bmap[a.barber_id]||0;_totalComm+=Number(a.service_price||0)*(pct/100);});
+    const mrLiq=mr-_totalComm;
     document.getElementById('st-today').textContent=tc;
     document.getElementById('st-rtd').textContent=fmt(tr);
     document.getElementById('st-month').textContent=mc;
-    document.getElementById('st-rm').textContent='R$ '+mr.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+    document.getElementById('st-rm').textContent='R$ '+mrLiq.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
     const dl=document.getElementById('dash-list');
     var nowH=new Date().getHours(),nowM=new Date().getMinutes(),nowTot=nowH*60+nowM;
     var futureAppts=(ta||[]).filter(function(a){var p=(a.appointment_time||'00:00').split(':');var am=Number(p[0])*60+Number(p[1]||0);return am>=nowTot||a.status==='confirmed'||a.status==='pending';});
