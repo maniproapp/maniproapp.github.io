@@ -125,7 +125,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--dk);color:var(--tx);min-h
 .srl{font-size:13px;color:var(--txm)}.srv{font-size:14px;font-weight:600}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--dk4);border-radius:4px}
 html,body{overscroll-behavior-y:none;}
-#svc-grid img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-user-drag:none!important;pointer-events:auto;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -1077,7 +1076,7 @@ function renderSvcGrid(){
     const key=s.id||('idx-'+i);
     const inCart=S.cart.some(c=>(c.id&&c.id===s.id)||(c._idx===i));
     return`<div onclick="toggleCart(${i})" style="background:var(--dk3);border:1.5px solid ${inCart?'var(--gold)':'var(--dk4)'};border-radius:var(--r);padding:14px;cursor:pointer;transition:all .2s;${inCart?'background:rgba(155,89,182,.08)':''}">
-      ${s.image_url?'<img src="'+s.image_url+'" style="width:60px;height:60px;object-fit:cover;border-radius:10px"><div style="font-size:8px;color:#8a7a9a;margin-top:2px">segure para ampliar</div>':'<div class="'+catCls(s.category)+'" style="margin-bottom:8px">'+icLabel(s.category)+'</div>'}
+      ${s.image_url?'<img src="'+s.image_url+'" style="width:60px;height:60px;object-fit:cover;border-radius:10px"><div style="font-size:9px;color:#9B59B6;margin-top:3px;cursor:pointer" onclick="event.stopPropagation();openImgLightbox(this.previousElementSibling.src)">&#x1F50D; ver foto</div>':'<div class="'+catCls(s.category)+'" style="margin-bottom:8px">'+icLabel(s.category)+'</div>'}
       <div style="font-size:14px;font-weight:600;color:var(--tx)">${s.name}</div>
       <div style="font-size:16px;font-weight:700;color:var(--gold);margin-top:4px">${fmt(s.price)}</div>
       <div style="font-size:11px;color:var(--txm);margin-top:2px">${s.duration_minutes} min</div>
@@ -2787,40 +2786,7 @@ document.addEventListener('click', function(e){
 
 
 
-// Block context menu on service images (prevents browser long-press menu)
-document.addEventListener('contextmenu', function(e) {
-  if(e.target.tagName==='IMG'&&e.target.closest('#svc-grid')){e.preventDefault();}
-});
-// === LONG PRESS on service images to open lightbox ===
-(function(){
-  var _lpTimer=null;
-  var _lpImg=null;
-  var _moved=false;
-  
-  document.addEventListener('touchstart',function(e){
-    var img=e.target;
-    if(img.tagName==='IMG'&&img.closest('#svc-grid')&&img.src){
-      _lpImg=img;
-      _moved=false;
-      _lpTimer=setTimeout(function(){
-        if(!_moved&&_lpImg){
-          openImgLightbox(_lpImg.src);
-        }
-        _lpImg=null;
-      },500);
-    }
-  },{passive:false});
-  
-  document.addEventListener('touchmove',function(){
-    _moved=true;
-    if(_lpTimer){clearTimeout(_lpTimer);_lpTimer=null;}
-  },{passive:true});
-  
-  document.addEventListener('touchend',function(e){
-    if(_lpTimer){clearTimeout(_lpTimer);_lpTimer=null;}
-    _lpImg=null;
-  },{passive:true});
-})();
+
 
 function openImgLightbox(url){
   var ov=document.getElementById('img-lightbox');
