@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -1076,7 +1076,7 @@ function renderSvcGrid(){
     const key=s.id||('idx-'+i);
     const inCart=S.cart.some(c=>(c.id&&c.id===s.id)||(c._idx===i));
     return`<div onclick="toggleCart(${i})" style="background:var(--dk3);border:1.5px solid ${inCart?'var(--gold)':'var(--dk4)'};border-radius:var(--r);padding:14px;cursor:pointer;transition:all .2s;${inCart?'background:rgba(155,89,182,.08)':''}">
-      ${s.image_url?'<img src="'+s.image_url+'" style="width:60px;height:60px;object-fit:cover;border-radius:10px"><div style="font-size:9px;color:#9B59B6;margin-top:3px;cursor:pointer" onclick="event.stopPropagation();openImgLightbox(this.previousElementSibling.src)">&#x1F50D; ver foto</div>':'<div class="'+catCls(s.category)+'" style="margin-bottom:8px">'+icLabel(s.category)+'</div>'}
+      ${s.image_url?'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><img src="'+s.image_url+'" style="width:60px;height:60px;object-fit:cover;border-radius:10px"><div class="ver-foto-btn" style="font-size:11px;color:#9B59B6;font-weight:600;padding:6px 10px;border:1px solid #9B59B6;border-radius:8px;cursor:pointer;white-space:nowrap">&#x1F50D; Ampliar</div></div>':'<div class="'+catCls(s.category)+'" style="margin-bottom:8px">'+icLabel(s.category)+'</div>'}
       <div style="font-size:14px;font-weight:600;color:var(--tx)">${s.name}</div>
       <div style="font-size:16px;font-weight:700;color:var(--gold);margin-top:4px">${fmt(s.price)}</div>
       <div style="font-size:11px;color:var(--txm);margin-top:2px">${s.duration_minutes} min</div>
@@ -1086,7 +1086,7 @@ function renderSvcGrid(){
 }
 
 function toggleCart(idx){
-  
+  if(window._skipToggle){window._skipToggle=false;return;}
   // idx é o índice do array S.svcs
   const svc=S.svcs[idx];if(!svc)return;
   const svcWithIdx={...svc,_idx:idx};
@@ -2788,6 +2788,16 @@ document.addEventListener('click', function(e){
 
 
 
+// Click delegation for ver foto button
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.ver-foto-btn');
+  if (btn) {
+    window._skipToggle = true;
+    var img = btn.parentElement.querySelector('img');
+    if (img && img.src) openImgLightbox(img.src);
+  }
+}, true);
+
 function openImgLightbox(url){
   var ov=document.getElementById('img-lightbox');
   if(!ov){
@@ -2795,7 +2805,7 @@ function openImgLightbox(url){
     ov.id='img-lightbox';
     ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;opacity:0;transition:opacity .3s';
     ov.onclick=function(){ov.style.opacity='0';setTimeout(function(){ov.style.display='none'},300)};
-    ov.innerHTML='<img id="img-lightbox-src" style="width:50vw;height:50vw;max-width:400px;max-height:400px;object-fit:cover;border-radius:12px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.5)">';
+    ov.innerHTML='<img id="img-lightbox-src" style="max-width:50vw;max-height:50vw;object-fit:cover;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.5)">';
     document.body.appendChild(ov);
   }
   document.getElementById('img-lightbox-src').src=url;
