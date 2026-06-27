@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -1076,42 +1076,24 @@ function renderSvcGrid(){
     const key=s.id||('idx-'+i);
     const inCart=S.cart.some(c=>(c.id&&c.id===s.id)||(c._idx===i));
     return`<div onclick="toggleCart(${i})" style="background:var(--dk3);border:1.5px solid ${inCart?'var(--gold)':'var(--dk4)'};border-radius:var(--r);padding:14px;cursor:pointer;transition:all .2s;${inCart?'background:rgba(155,89,182,.08)':''}">
-      ${s.image_url?'<img src="'+s.image_url+'" style="width:60px;height:60px;object-fit:cover;border-radius:10px;margin-bottom:8px"':'<div class="'+catCls(s.category)+'" style="margin-bottom:8px">'+icLabel(s.category)+'</div>'}
+      ${s.image_url?'<div style="position:relative;display:inline-block;margin-bottom:8px"><img src="'+s.image_url+'" style="width:60px;height:60px;object-fit:cover;border-radius:10px"><div class="img-expand-btn" data-url="'+s.image_url+'" style="position:absolute;bottom:2px;right:2px;background:rgba(155,89,182,.85);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;color:#fff">&#x26F6;</div></div>':'<div class="'+catCls(s.category)+'" style="margin-bottom:8px">'+icLabel(s.category)+'</div>'}
       <div style="font-size:14px;font-weight:600;color:var(--tx)">${s.name}</div>
       <div style="font-size:16px;font-weight:700;color:var(--gold);margin-top:4px">${fmt(s.price)}</div>
       <div style="font-size:11px;color:var(--txm);margin-top:2px">${s.duration_minutes} min</div>
-      ${inCart?'<div class="svc-added" style="font-size:11px;color:var(--gold);font-weight:700;margin-top:6px">✓ Adicionado</div>':''}
+      ${inCart?'<div style="font-size:11px;color:var(--gold);font-weight:700;margin-top:6px">✓ Adicionado</div>':''}
     </div>`;
   }).join('');
 }
 
 function toggleCart(idx){
-  if(window._skipToggle){window._skipToggle=false;return;}
+  // Skip if click came from lightbox expand button
+  if(event&&event.target&&(event.target.classList.contains("img-expand-btn")||event.target.closest(".img-expand-btn"))){var _url=event.target.getAttribute("data-url")||event.target.closest(".img-expand-btn").getAttribute("data-url");if(_url)openImgLightbox(_url);return;}
+  // idx é o índice do array S.svcs
   const svc=S.svcs[idx];if(!svc)return;
-  const existIdx=S.cart.findIndex(c=>(c.id&&c.id===svc.id)||(c._idx===idx));
-  // Se ja selecionado e tem foto, abre lightbox em vez de deselecionar
-  if(existIdx>-1&&svc.image_url){openImgLightbox(svc.image_url);return;}
-  if(existIdx>-1){S.cart.splice(existIdx,1);}else{S.cart.push({...svc,_idx:idx});}
-  // Update visual state of the card without re-rendering
-  const cards=document.querySelectorAll('#svc-grid > div');
-  const card=cards[idx];
-  if(card){
-    const inCart=S.cart.some(c=>(c.id&&c.id===svc.id)||(c._idx===idx));
-    card.style.borderColor=inCart?'var(--gold)':'var(--dk4)';
-    card.style.background=inCart?'rgba(155,89,182,.08)':'var(--dk3)';
-    let addedEl=card.querySelector('.svc-added');
-    if(inCart&&!addedEl){
-      addedEl=document.createElement('div');
-      addedEl.className='svc-added';
-      addedEl.style.cssText='font-size:11px;color:var(--gold);font-weight:700;margin-top:6px';
-      addedEl.innerHTML=svc.image_url?'\u2713 Adicionado<br><span style="font-size:9px;color:#8a7a9a;font-weight:400">toque para ampliar</span>':'\u2713 Adicionado';
-      card.appendChild(addedEl);
-    }else if(!inCart&&addedEl){
-      addedEl.remove();
-    }
-  }
-  // Update cart summary
-  renderCart();
+  const svcWithIdx={...svc,_idx:idx};
+  const cartIdx=S.cart.findIndex(c=>c._idx===idx);
+  if(cartIdx>=0)S.cart.splice(cartIdx,1);else S.cart.push(svcWithIdx);
+  renderSvcGrid();renderCart();
   const btn=document.getElementById('btn-bk1');
   if(btn){btn.disabled=S.cart.length===0;btn.style.opacity=S.cart.length>0?'1':'.4';}
 }
@@ -2802,11 +2784,18 @@ document.addEventListener('click', function(e){
 
 
 
-
-
-
-
-
+// Global listener for expand button on service images
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.img-expand-btn');
+  if (btn) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    var url = btn.getAttribute('data-url');
+    if (url) openImgLightbox(url);
+    return false;
+  }
+}, true);
 
 function openImgLightbox(url){
   var ov=document.getElementById('img-lightbox');
@@ -2815,7 +2804,7 @@ function openImgLightbox(url){
     ov.id='img-lightbox';
     ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;opacity:0;transition:opacity .3s';
     ov.onclick=function(){ov.style.opacity='0';setTimeout(function(){ov.style.display='none'},300)};
-    ov.innerHTML='<img id="img-lightbox-src" style="max-width:50vw;max-height:50vw;object-fit:cover;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.5)">';
+    ov.innerHTML='<img id="img-lightbox-src" style="max-width:90%;max-height:90%;border-radius:12px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.5)">';
     document.body.appendChild(ov);
   }
   document.getElementById('img-lightbox-src').src=url;
